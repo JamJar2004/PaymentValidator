@@ -1,0 +1,96 @@
+﻿<Window x:Class="PaymentValidator.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PaymentValidator"
+		xmlns:viewmodels="clr-namespace:PaymentValidator.ViewModels"
+		xmlns:validationrules="clr-namespace:PaymentValidator.ValidationRules"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="600" WindowStartupLocation="CenterScreen">
+	<Window.DataContext>
+		<viewmodels:MainViewModel/>
+	</Window.DataContext>
+	<StackPanel>
+		<TextBlock Text="Welcome to the payment validator." 
+				   HorizontalAlignment="Center"
+				   Margin="5, 5, 5, 2.5"
+				   MaxWidth="400"
+				   FontSize="18"
+				   FontWeight="Bold" 
+				   TextWrapping="Wrap" 
+				   TextAlignment="Center"/>
+
+		<TextBlock Text="Please enter the following details to get started." 
+				   HorizontalAlignment="Center"
+				   Margin="5, 2.5, 5, 5"
+				   MaxWidth="400"
+				   FontSize="15"
+				   FontWeight="Bold" 
+				   TextWrapping="Wrap" 
+				   TextAlignment="Center"/>
+
+		<Grid>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="auto"/>
+				<ColumnDefinition Width="*"/>
+				<ColumnDefinition Width="auto"/>
+			</Grid.ColumnDefinitions>
+			
+			<Grid.RowDefinitions>
+				<RowDefinition Height="auto"/>
+				<RowDefinition Height="auto"/>
+				<RowDefinition Height="auto"/>
+			</Grid.RowDefinitions>
+			
+			<TextBlock Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" Margin="5" Text="Sender Name:"/>
+			<TextBlock Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Margin="5" Text="Payment Amount (€):"/>
+			<TextBlock Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Margin="5" Text="IBAN:"/>
+
+			<!--<TextBox Grid.Column="1" Grid.Row="0" Margin="5" FontSize="15">
+				<TextBox.Text>
+					<Binding Path="SenderName">
+						<Binding.ValidationRules>
+							
+						</Binding.ValidationRules>
+					</Binding>
+				</TextBox.Text>
+			</TextBox>-->
+
+			<TextBox x:Name="SenderNameTextBox" Grid.Column="1" Grid.Row="0" Margin="2.5, 5, 2.5, 5" FontSize="15">
+				<TextBox.Text>
+					<Binding Path="SenderName" UpdateSourceTrigger="PropertyChanged">
+						<Binding.ValidationRules>
+							<validationrules:StringNotEmptyValidationRule/>
+						</Binding.ValidationRules>
+					</Binding>
+				</TextBox.Text>
+			</TextBox>
+
+			<TextBox x:Name="PaymentAmountTextBox" Grid.Column="1" Grid.Row="1" Margin="2.5, 5, 2.5, 5" FontSize="15">
+				<Binding Path="PaymentAmount" UpdateSourceTrigger="LostFocus" ConverterCulture="en-US">
+					<Binding.ValidationRules>
+						<validationrules:MoneyValidationRule/>
+					</Binding.ValidationRules>
+				</Binding>
+			</TextBox>
+
+			<TextBox x:Name="IBANTextBox" Grid.Column="1" Grid.Row="2" Margin="2.5, 5, 2.5, 5" FontSize="15">
+				<Binding Path="IBAN" UpdateSourceTrigger="PropertyChanged">
+					<Binding.ValidationRules>
+						<validationrules:IBANValidationRule/>
+					</Binding.ValidationRules>
+				</Binding>
+			</TextBox>
+
+			<TextBlock Grid.Column="2" Grid.Row="0" VerticalAlignment="Center" Margin="2.5, 5, 5, 5" Foreground="Red" 
+					   Text="{Binding ElementName=SenderNameTextBox, Path=(Validation.Errors)[0].ErrorContent}"/>
+
+			<TextBlock Grid.Column="2" Grid.Row="1" VerticalAlignment="Center" Margin="2.5, 5, 5, 5" Foreground="Red"
+					   Text="{Binding ElementName=PaymentAmountTextBox, Path=(Validation.Errors)[0].ErrorContent}"/>
+
+			<TextBlock Grid.Column="2" Grid.Row="2" VerticalAlignment="Center" Margin="2.5, 5, 5, 5" Foreground="Red"
+					   Text="{Binding ElementName=IBANTextBox, Path=(Validation.Errors)[0].ErrorContent}"/>
+		</Grid>
+	</StackPanel>
+</Window>
