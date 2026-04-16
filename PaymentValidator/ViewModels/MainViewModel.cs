@@ -1,60 +1,70 @@
-﻿using System.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using PaymentValidator.Loggers;
+using PaymentValidator.Services;
+using PaymentValidator.Services.Blacklist;
+using PaymentValidator.Services.Payment;
+using System.IO;
+using System.Windows;
+using System.Windows.Threading;
 
 namespace PaymentValidator.ViewModels
 {
-	public class MainViewModel : INotifyPropertyChanging, INotifyPropertyChanged
+	public partial class MainViewModel : ObservableObject
 	{
-		public MainViewModel()
+		public MainViewModel(Dispatcher dispatcher)
 		{
 			SenderName = string.Empty;
 			PaymentAmount = 0.0M;
 			IBAN = string.Empty;
+
+			var logger = new MessageBoxLogger(dispatcher);
+			var blacklistService = new JsonBlackListService(new FileInfo("C:\\BlackList.json"), logger);
+			Service = new JsonPaymentService(blacklistService, logger, new FileInfo("C:\\Payments.json"));
 		}
 
-		public event PropertyChangingEventHandler? PropertyChanging;
-		public event PropertyChangedEventHandler? PropertyChanged;
+		public PaymentService Service { get; }
 
-		public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
+		[ObservableProperty]
+		public partial string SenderName { get; set; }
 
-		public string SenderName
+		[ObservableProperty]
+		public partial decimal PaymentAmount { get; set; }
+
+		[ObservableProperty]
+		public partial string IBAN { get; set; }
+
+		partial void OnSenderNameChanged(string oldValue, string newValue)
 		{
-			get => field;
-			set
+			SendPaymentCommand.NotifyCanExecuteChanged();
+		}
+
+		partial void OnPaymentAmountChanged(decimal oldValue, decimal newValue)
+		{
+			SendPaymentCommand.NotifyCanExecuteChanged();
+		}
+
+		partial void OnIBANChanged(string oldValue, string newValue)
+		{
+			SendPaymentCommand.NotifyCanExecuteChanged();
+		}
+
+		bool CanSendPayment()
+		{
+			var validationService = new ValidationService();
+			return validationService.ValidateSenderName(SenderName, out _) && validationService.ValidateAmountOfMoney(PaymentAmount, out _) && validationService.ValidateIBANNumber(IBAN, out _);
+		}
+
+		[RelayCommand(CanExecute = nameof(CanSendPayment))]
+		async Task SendPaymentAsync()
+		{
+			if (await Service.TrySendMoneyAsync(SenderName, PaymentAmount, IBAN))
 			{
-				if (field != value)
-				{
-					PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(SenderName)));
-					field = value;
-					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SenderName)));
-				}
+				MessageBox.Show($"Successfully sent {PaymentAmount} euros, from '{SenderName}', to IBAN number {IBAN}.", "Payment Validator", MessageBoxButton.OK, MessageBoxImage.Information);
 			}
-		}
-
-		public decimal PaymentAmount
-		{
-			get => field;
-			set
+			else
 			{
-				if (field != value)
-				{
-					PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(PaymentAmount)));
-					field = value;
-					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PaymentAmount)));
-				}
-			}
-		}
-
-		public string IBAN
-		{
-			get => field;
-			set
-			{
-				if (field != value)
-				{
-					PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(IBAN)));
-					field = value.ToUpper();
-					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IBAN)));
-				}
+				MessageBox.Show("Failed to send money.", "Payment Validator", MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 		}
 	}

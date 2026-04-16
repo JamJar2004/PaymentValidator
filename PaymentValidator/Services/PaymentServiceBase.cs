@@ -2,10 +2,10 @@
 
 namespace PaymentValidator.Services
 {
-    public abstract class PaymentService(IBlacklistService blackListService, ValidationService validationService, ILogger<string> logger)
+    public abstract class PaymentService(IBlacklistService blackListService, ILogger<string> logger)
     {
         private readonly IBlacklistService _blackListService = blackListService;
-		private readonly ValidationService _validationService = validationService;
+		private readonly ValidationService _validationService = new();
 
 		public ILogger<string> Logger { get; } = logger;
 
@@ -31,7 +31,7 @@ namespace PaymentValidator.Services
 
 			if (await _blackListService.IsUserBlackListedAsync(senderName))
             {
-                await Logger.LogAsync($"User of name '{senderName}' is blacklisted.");
+                await Logger.LogAsync($"User of name '{senderName}' is blacklisted. The payment has been rejected.");
                 return false;
             }
 

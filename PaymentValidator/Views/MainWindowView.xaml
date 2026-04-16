@@ -7,10 +7,8 @@
 		xmlns:viewmodels="clr-namespace:PaymentValidator.ViewModels"
 		xmlns:validationrules="clr-namespace:PaymentValidator.ValidationRules"
         mc:Ignorable="d"
-        Title="Payment Validator" Height="450" Width="600" WindowStartupLocation="CenterScreen">
-	<Window.DataContext>
-		<viewmodels:MainViewModel/>
-	</Window.DataContext>
+        Title="Payment Validator" SizeToContent="Height" Height="auto" Width="600" WindowStartupLocation="CenterScreen"
+		d:DataContext="{d:DesignInstance {x:Type viewmodels:MainViewModel}}">
 	<StackPanel>
 		<TextBlock Text="Welcome to the payment validator." 
 				   HorizontalAlignment="Center"
@@ -47,16 +45,6 @@
 			<TextBlock Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Margin="5" Text="Payment Amount (€):"/>
 			<TextBlock Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Margin="5" Text="IBAN:"/>
 
-			<!--<TextBox Grid.Column="1" Grid.Row="0" Margin="5" FontSize="15">
-				<TextBox.Text>
-					<Binding Path="SenderName">
-						<Binding.ValidationRules>
-							
-						</Binding.ValidationRules>
-					</Binding>
-				</TextBox.Text>
-			</TextBox>-->
-
 			<TextBox x:Name="SenderNameTextBox" Grid.Column="1" Grid.Row="0" Margin="2.5, 5, 2.5, 5" FontSize="15">
 				<TextBox.Text>
 					<Binding Path="SenderName" UpdateSourceTrigger="PropertyChanged">
@@ -75,7 +63,7 @@
 				</Binding>
 			</TextBox>
 
-			<TextBox x:Name="IBANTextBox" Grid.Column="1" Grid.Row="2" Margin="2.5, 5, 2.5, 5" FontSize="15">
+			<TextBox x:Name="IBANTextBox" Grid.Column="1" Grid.Row="2" Margin="2.5, 5, 2.5, 5" FontSize="15" CharacterCasing="Upper">
 				<Binding Path="IBAN" UpdateSourceTrigger="PropertyChanged">
 					<Binding.ValidationRules>
 						<validationrules:IBANValidationRule/>
@@ -92,5 +80,7 @@
 			<TextBlock Grid.Column="2" Grid.Row="2" VerticalAlignment="Center" Margin="2.5, 5, 5, 5" Foreground="Red"
 					   Text="{Binding ElementName=IBANTextBox, Path=(Validation.Errors)[0].ErrorContent}"/>
 		</Grid>
+
+		<Button Margin="5, 2.5, 5, 5" FontSize="16" Content="Submit payment" Height="30" Command="{Binding SendPaymentCommand}"/>
 	</StackPanel>
 </Window>

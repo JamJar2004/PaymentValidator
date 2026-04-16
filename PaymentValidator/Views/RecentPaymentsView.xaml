@@ -1,0 +1,26 @@
+﻿<Window x:Class="PaymentValidator.Views.RecentPaymentsView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PaymentValidator.Views" xmlns:viewmodels="clr-namespace:PaymentValidator.ViewModels"
+		mc:Ignorable="d"
+		Title="Recent Payments" Height="400" Width="600" d:DataContext="{d:DesignInstance {x:Type viewmodels:RecentPaymentsViewModel}}">
+    <Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="auto"/>
+		</Grid.RowDefinitions>
+		
+		<ListView Grid.Row="0" ItemsSource="{Binding Payments.Payments}">
+			<ListView.View>
+				<GridView>
+					<GridViewColumn Header="Sender Name" DisplayMemberBinding="{Binding SenderName}"/>
+					<GridViewColumn Header="Amount in euros" DisplayMemberBinding="{Binding AmountInEuros}"/>
+					<GridViewColumn Header="Target IBAN number" DisplayMemberBinding="{Binding IBANNumber}"/>
+				</GridView>
+			</ListView.View>
+		</ListView>
+		<Button Grid.Row="1" Content="OK" Height="30" Margin="5"/>
+	</Grid>
+</Window>
