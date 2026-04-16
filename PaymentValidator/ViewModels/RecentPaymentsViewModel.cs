@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using PaymentValidator.Services.Payment;
-using System.Collections.ObjectModel;
 
 namespace PaymentValidator.ViewModels
 {

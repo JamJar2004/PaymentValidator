@@ -9,78 +9,96 @@
         mc:Ignorable="d"
         Title="Payment Validator" SizeToContent="Height" Height="auto" Width="600" WindowStartupLocation="CenterScreen"
 		d:DataContext="{d:DesignInstance {x:Type viewmodels:MainViewModel}}">
-	<StackPanel>
-		<TextBlock Text="Welcome to the payment validator." 
-				   HorizontalAlignment="Center"
-				   Margin="5, 5, 5, 2.5"
-				   MaxWidth="400"
-				   FontSize="18"
-				   FontWeight="Bold" 
-				   TextWrapping="Wrap" 
-				   TextAlignment="Center"/>
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="auto"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
 
-		<TextBlock Text="Please enter the following details to get started." 
-				   HorizontalAlignment="Center"
-				   Margin="5, 2.5, 5, 5"
-				   MaxWidth="400"
-				   FontSize="15"
-				   FontWeight="Bold" 
-				   TextWrapping="Wrap" 
-				   TextAlignment="Center"/>
+		<Menu>
+			<MenuItem Header="Actions">
+				<MenuItem Header="Blacklist user" Command="{Binding BlacklistUserCommand}"/>
+				<MenuItem Header="Remove from blacklist"/>
+			</MenuItem>
 
-		<Grid>
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="auto"/>
-				<ColumnDefinition Width="*"/>
-				<ColumnDefinition Width="auto"/>
-			</Grid.ColumnDefinitions>
+			<MenuItem Header="View">
+				<MenuItem Header="Recent payments" Command="{Binding ViewRecentPaymentsCommand}"/>
+			</MenuItem>
+		</Menu>
+		
+		<StackPanel Grid.Row="1">
+			<TextBlock Text="Welcome to the payment validator." 
+					   HorizontalAlignment="Center"
+					   Margin="5, 5, 5, 2.5"
+					   MaxWidth="400"
+					   FontSize="18"
+					   FontWeight="Bold" 
+					   TextWrapping="Wrap" 
+					   TextAlignment="Center"/>
+
+			<TextBlock Text="Please enter the following details to get started." 
+					   HorizontalAlignment="Center"
+					   Margin="5, 2.5, 5, 5"
+					   MaxWidth="400"
+					   FontSize="15"
+					   FontWeight="Bold" 
+					   TextWrapping="Wrap" 
+					   TextAlignment="Center"/>
+
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="auto"/>
+					<ColumnDefinition Width="*"/>
+					<ColumnDefinition Width="auto"/>
+				</Grid.ColumnDefinitions>
 			
-			<Grid.RowDefinitions>
-				<RowDefinition Height="auto"/>
-				<RowDefinition Height="auto"/>
-				<RowDefinition Height="auto"/>
-			</Grid.RowDefinitions>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="auto"/>
+					<RowDefinition Height="auto"/>
+					<RowDefinition Height="auto"/>
+				</Grid.RowDefinitions>
 			
-			<TextBlock Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" Margin="5" Text="Sender Name:"/>
-			<TextBlock Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Margin="5" Text="Payment Amount (€):"/>
-			<TextBlock Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Margin="5" Text="IBAN:"/>
+				<TextBlock Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" Margin="5" Text="Sender Name:"/>
+				<TextBlock Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Margin="5" Text="Payment Amount (€):"/>
+				<TextBlock Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Margin="5" Text="IBAN:"/>
 
-			<TextBox x:Name="SenderNameTextBox" Grid.Column="1" Grid.Row="0" Margin="2.5, 5, 2.5, 5" FontSize="15">
-				<TextBox.Text>
-					<Binding Path="SenderName" UpdateSourceTrigger="PropertyChanged">
+				<TextBox x:Name="SenderNameTextBox" Grid.Column="1" Grid.Row="0" Margin="2.5, 5, 2.5, 5" FontSize="15">
+					<TextBox.Text>
+						<Binding Path="SenderName" UpdateSourceTrigger="PropertyChanged">
+							<Binding.ValidationRules>
+								<validationrules:StringNotEmptyValidationRule/>
+							</Binding.ValidationRules>
+						</Binding>
+					</TextBox.Text>
+				</TextBox>
+
+				<TextBox x:Name="PaymentAmountTextBox" Grid.Column="1" Grid.Row="1" Margin="2.5, 5, 2.5, 5" FontSize="15">
+					<Binding Path="PaymentAmount" UpdateSourceTrigger="LostFocus" ConverterCulture="en-US">
 						<Binding.ValidationRules>
-							<validationrules:StringNotEmptyValidationRule/>
+							<validationrules:MoneyValidationRule/>
 						</Binding.ValidationRules>
 					</Binding>
-				</TextBox.Text>
-			</TextBox>
+				</TextBox>
 
-			<TextBox x:Name="PaymentAmountTextBox" Grid.Column="1" Grid.Row="1" Margin="2.5, 5, 2.5, 5" FontSize="15">
-				<Binding Path="PaymentAmount" UpdateSourceTrigger="LostFocus" ConverterCulture="en-US">
-					<Binding.ValidationRules>
-						<validationrules:MoneyValidationRule/>
-					</Binding.ValidationRules>
-				</Binding>
-			</TextBox>
+				<TextBox x:Name="IBANTextBox" Grid.Column="1" Grid.Row="2" Margin="2.5, 5, 2.5, 5" FontSize="15" CharacterCasing="Upper">
+					<Binding Path="IBAN" UpdateSourceTrigger="PropertyChanged">
+						<Binding.ValidationRules>
+							<validationrules:IBANValidationRule/>
+						</Binding.ValidationRules>
+					</Binding>
+				</TextBox>
 
-			<TextBox x:Name="IBANTextBox" Grid.Column="1" Grid.Row="2" Margin="2.5, 5, 2.5, 5" FontSize="15" CharacterCasing="Upper">
-				<Binding Path="IBAN" UpdateSourceTrigger="PropertyChanged">
-					<Binding.ValidationRules>
-						<validationrules:IBANValidationRule/>
-					</Binding.ValidationRules>
-				</Binding>
-			</TextBox>
+				<TextBlock Grid.Column="2" Grid.Row="0" VerticalAlignment="Center" Margin="2.5, 5, 5, 5" Foreground="Red" 
+						   Text="{Binding ElementName=SenderNameTextBox, Path=(Validation.Errors)[0].ErrorContent}"/>
 
-			<TextBlock Grid.Column="2" Grid.Row="0" VerticalAlignment="Center" Margin="2.5, 5, 5, 5" Foreground="Red" 
-					   Text="{Binding ElementName=SenderNameTextBox, Path=(Validation.Errors)[0].ErrorContent}"/>
+				<TextBlock Grid.Column="2" Grid.Row="1" VerticalAlignment="Center" Margin="2.5, 5, 5, 5" Foreground="Red"
+						   Text="{Binding ElementName=PaymentAmountTextBox, Path=(Validation.Errors)[0].ErrorContent}"/>
 
-			<TextBlock Grid.Column="2" Grid.Row="1" VerticalAlignment="Center" Margin="2.5, 5, 5, 5" Foreground="Red"
-					   Text="{Binding ElementName=PaymentAmountTextBox, Path=(Validation.Errors)[0].ErrorContent}"/>
+				<TextBlock Grid.Column="2" Grid.Row="2" VerticalAlignment="Center" Margin="2.5, 5, 5, 5" Foreground="Red"
+						   Text="{Binding ElementName=IBANTextBox, Path=(Validation.Errors)[0].ErrorContent}"/>
+			</Grid>
 
-			<TextBlock Grid.Column="2" Grid.Row="2" VerticalAlignment="Center" Margin="2.5, 5, 5, 5" Foreground="Red"
-					   Text="{Binding ElementName=IBANTextBox, Path=(Validation.Errors)[0].ErrorContent}"/>
-		</Grid>
-
-		<Button Margin="5, 2.5, 5, 5" FontSize="16" Content="Submit payment" Height="30" Command="{Binding SendPaymentCommand}"/>
-	</StackPanel>
+			<Button Margin="5, 2.5, 5, 5" FontSize="16" Content="Submit payment" Height="30" Command="{Binding SendPaymentCommand}"/>
+		</StackPanel>
+	</Grid>
 </Window>

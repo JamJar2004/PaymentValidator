@@ -12,7 +12,7 @@ namespace PaymentValidator.Views
 		{
 			InitializeComponent();
 
-			DataContext = new MainViewModel(Dispatcher);
+			DataContext = new MainViewModel(this);
 		}
-	}
+    }
 }

@@ -19,7 +19,7 @@ namespace PaymentValidator.Services.Payment
 		public required List<PaymentPayload> Payments { get; init; }
 	}
 
-	public sealed class JsonPaymentService(IBlacklistService blackListService, ILogger<string> logger, FileInfo file) : PaymentService(blackListService, logger)
+	public sealed class JsonPaymentService(IBlacklistService blackListService, ILogger<string> logger, FileInfo file) : PaymentServiceBase(blackListService, logger)
     {
 		private readonly FileInfo _file = file;
 
@@ -46,6 +46,16 @@ namespace PaymentValidator.Services.Payment
 			await using var writeStream = _file.Open(FileMode.Create);
 			await JsonSerializer.SerializeAsync(writeStream, paymentCollection);
 			return true;
+		}
+
+		public async override Task<PaymentCollectionPayload> GetRecentPaymentsAsync()
+		{
+			if (_file.Exists)
+			{
+				await using var stream = _file.OpenRead();
+				return await JsonSerializer.DeserializeAsync<PaymentCollectionPayload>(stream) ?? new PaymentCollectionPayload() { Payments = [] };
+			}
+			return new PaymentCollectionPayload() { Payments = [] };
 		}
 	}
 }

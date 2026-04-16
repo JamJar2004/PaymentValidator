@@ -1,9 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PaymentValidator.Interfaces;
 using PaymentValidator.Loggers;
 using PaymentValidator.Services;
 using PaymentValidator.Services.Blacklist;
 using PaymentValidator.Services.Payment;
+using PaymentValidator.Views;
 using System.IO;
 using System.Windows;
 using System.Windows.Threading;
@@ -12,18 +14,24 @@ namespace PaymentValidator.ViewModels
 {
 	public partial class MainViewModel : ObservableObject
 	{
-		public MainViewModel(Dispatcher dispatcher)
+		private readonly MainWindow _view;
+
+		public MainViewModel(MainWindow view)
 		{
+			_view = view;
+
 			SenderName = string.Empty;
 			PaymentAmount = 0.0M;
 			IBAN = string.Empty;
 
-			var logger = new MessageBoxLogger(dispatcher);
-			var blacklistService = new JsonBlackListService(new FileInfo("C:\\BlackList.json"), logger);
-			Service = new JsonPaymentService(blacklistService, logger, new FileInfo("C:\\Payments.json"));
+			var logger = new MessageBoxLogger(view.Dispatcher);
+			BlacklistService = new JsonBlackListService(new FileInfo("C:\\BlackList.json"), logger);
+			PaymentService = new JsonPaymentService(BlacklistService, logger, new FileInfo("C:\\Payments.json"));
 		}
 
-		public PaymentService Service { get; }
+		public IBlacklistService BlacklistService { get; }
+
+		public PaymentServiceBase PaymentService { get; }
 
 		[ObservableProperty]
 		public partial string SenderName { get; set; }
@@ -58,7 +66,7 @@ namespace PaymentValidator.ViewModels
 		[RelayCommand(CanExecute = nameof(CanSendPayment))]
 		async Task SendPaymentAsync()
 		{
-			if (await Service.TrySendMoneyAsync(SenderName, PaymentAmount, IBAN))
+			if (await PaymentService.TrySendMoneyAsync(SenderName, PaymentAmount, IBAN))
 			{
 				MessageBox.Show($"Successfully sent {PaymentAmount} euros, from '{SenderName}', to IBAN number {IBAN}.", "Payment Validator", MessageBoxButton.OK, MessageBoxImage.Information);
 			}
@@ -66,6 +74,30 @@ namespace PaymentValidator.ViewModels
 			{
 				MessageBox.Show("Failed to send money.", "Payment Validator", MessageBoxButton.OK, MessageBoxImage.Error);
 			}
+		}
+
+		[RelayCommand]
+		void BlacklistUser()
+		{
+			var stringValueDialog = new StringValueDialogView()
+			{
+				Owner = _view
+			};
+
+			if (stringValueDialog.ShowDialog() == true)
+			{
+				BlacklistService.TryAddBlacklistedUserAsync(stringValueDialog.Text);
+			}
+		}
+
+		[RelayCommand]
+		async Task ViewRecentPayments()
+		{
+			var dialog = new RecentPaymentsView(await PaymentService.GetRecentPaymentsAsync())
+			{
+				Owner = _view
+			};
+			dialog.ShowDialog();
 		}
 	}
 }

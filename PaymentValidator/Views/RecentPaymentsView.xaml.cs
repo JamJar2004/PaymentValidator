@@ -1,25 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using PaymentValidator.Services.Payment;
+using PaymentValidator.ViewModels;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace PaymentValidator.Views
 {
-    /// <summary>
-    /// Interaction logic for RecentPaymentsView.xaml
-    /// </summary>
     public partial class RecentPaymentsView : Window
     {
-        public RecentPaymentsView()
+        public RecentPaymentsView(PaymentCollectionPayload paymentCollection)
         {
             InitializeComponent();
+
+            DataContext = new RecentPaymentsViewModel()
+            {
+                Payments = paymentCollection
+            };
         }
     }
 }

@@ -1,8 +1,10 @@
 ﻿using PaymentValidator.Interfaces;
+using PaymentValidator.Services.Payment;
+using System.Text.Json;
 
 namespace PaymentValidator.Services
 {
-    public abstract class PaymentService(IBlacklistService blackListService, ILogger<string> logger)
+    public abstract class PaymentServiceBase(IBlacklistService blackListService, ILogger<string> logger)
     {
         private readonly IBlacklistService _blackListService = blackListService;
 		private readonly ValidationService _validationService = new();
@@ -39,5 +41,7 @@ namespace PaymentValidator.Services
         }
 
         protected abstract Task<bool> TrySendMoneyAsyncCore(string senderName, decimal amountInEuros, string ibanNumber);
+
+		public abstract Task<PaymentCollectionPayload> GetRecentPaymentsAsync();
     }
 }
