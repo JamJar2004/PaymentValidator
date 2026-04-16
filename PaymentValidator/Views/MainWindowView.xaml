@@ -7,7 +7,7 @@
 		xmlns:viewmodels="clr-namespace:PaymentValidator.ViewModels"
 		xmlns:validationrules="clr-namespace:PaymentValidator.ValidationRules"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="600" WindowStartupLocation="CenterScreen">
+        Title="Payment Validator" Height="450" Width="600" WindowStartupLocation="CenterScreen">
 	<Window.DataContext>
 		<viewmodels:MainViewModel/>
 	</Window.DataContext>
