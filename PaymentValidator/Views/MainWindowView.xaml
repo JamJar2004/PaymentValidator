@@ -18,7 +18,7 @@
 		<Menu>
 			<MenuItem Header="Actions">
 				<MenuItem Header="Blacklist user" Command="{Binding BlacklistUserCommand}"/>
-				<MenuItem Header="Remove from blacklist"/>
+				<MenuItem Header="Remove from blacklist" Command="{Binding RemoveFromBlacklistCommand}"/>
 			</MenuItem>
 
 			<MenuItem Header="View">

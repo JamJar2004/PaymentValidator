@@ -3,10 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:PaymentValidator.Views"
-        mc:Ignorable="d"
-        Title="Enter Text" WindowStartupLocation="CenterScreen" SizeToContent="Height" Height="auto" Width="400" 
-		DataContext="{Binding RelativeSource={RelativeSource Mode=Self}}">
+        xmlns:local="clr-namespace:PaymentValidator.Views" 
+		xmlns:viewmodels="clr-namespace:PaymentValidator.ViewModels"
+		mc:Ignorable="d"
+		Title="Enter Text" WindowStartupLocation="CenterScreen" SizeToContent="Height" Height="auto" Width="300"
+		d:DataContext="{d:DesignInstance {x:Type viewmodels:StringValueDialogViewModel}}">
     <StackPanel VerticalAlignment="Center">
 		<Grid>
 			<Grid.ColumnDefinitions>
@@ -27,11 +28,13 @@
 			<Button x:Name="OkButton" 
 					Margin="5, 5, 2.5, 5" 
 					Grid.Column="0" 
+					IsDefault="True"
 					Content="OK" 
-					Click="OkButton_Click"/>
+					Command="{Binding OkCommand}"
+					CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"/>
 			
 			<Button Margin="2.5, 5, 5, 5" 
-					Grid.Column="1" 
+					Grid.Column="1"
 					Content="Cancel" 
 					IsCancel="True"/>
 		</Grid>

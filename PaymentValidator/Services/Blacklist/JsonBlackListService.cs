@@ -15,7 +15,7 @@ namespace PaymentValidator.Services.Blacklist
 
 		private readonly ILogger<string> _logger = logger;
 
-		public async Task<bool> TryAddBlacklistedUserAsync(string senderName)
+		private async Task<BlackListPayload> DeserializePayload()
 		{
 			var payload = new BlackListPayload() { BlacklistedUsers = [] };
 			if (_file.Exists)
@@ -23,7 +23,12 @@ namespace PaymentValidator.Services.Blacklist
 				await using var stream = _file.OpenRead();
 				payload = await JsonSerializer.DeserializeAsync<BlackListPayload>(stream) ?? new BlackListPayload() { BlacklistedUsers = [] };
 			}
+			return payload;
+		}
 
+		public async Task<bool> TryAddBlacklistedUserAsync(string senderName)
+		{
+			var payload = await DeserializePayload();
 			if (payload.BlacklistedUsers.Add(senderName))
 			{
 				await using var stream = _file.Open(FileMode.Create);
@@ -41,9 +46,32 @@ namespace PaymentValidator.Services.Blacklist
 				return false;
 			}
 
-			await using var stream = _file.Open(FileMode.OpenOrCreate);
-			var payload = await JsonSerializer.DeserializeAsync<BlackListPayload>(stream) ?? new BlackListPayload() { BlacklistedUsers = [] };
+			var payload = await DeserializePayload();
 			return payload.BlacklistedUsers.Contains(senderName);
+		}
+
+		public async Task<IEnumerable<string>> GetBlacklistedUsersAsync()
+		{
+			var payload = await DeserializePayload();
+			return payload.BlacklistedUsers;
+		}
+
+		public async Task<int> RemoveBlackListUsersAsync(IEnumerable<string> names)
+		{
+			var payload = await DeserializePayload();
+
+			var removeCount = 0;
+			
+			foreach (var name in names)
+			{
+				if (payload.BlacklistedUsers.Remove(name))
+				{
+					++removeCount;
+				}
+			}
+			await using var stream = _file.Open(FileMode.Create);
+			await JsonSerializer.SerializeAsync(stream, payload);
+			return removeCount;
 		}
 	}
 }

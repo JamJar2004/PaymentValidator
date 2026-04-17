@@ -70,23 +70,39 @@ namespace PaymentValidator.ViewModels
 			{
 				MessageBox.Show($"Successfully sent {PaymentAmount} euros, from '{SenderName}', to IBAN number {IBAN}.", "Payment Validator", MessageBoxButton.OK, MessageBoxImage.Information);
 			}
-			else
-			{
-				MessageBox.Show("Failed to send money.", "Payment Validator", MessageBoxButton.OK, MessageBoxImage.Error);
-			}
 		}
 
 		[RelayCommand]
 		void BlacklistUser()
 		{
-			var stringValueDialog = new StringValueDialogView()
+			var stringValueDialogViewModel = new StringValueDialogViewModel();
+
+			var stringValueDialog = new StringValueDialogView(stringValueDialogViewModel)
 			{
+				Title = "Blacklist User",
 				Owner = _view
 			};
 
 			if (stringValueDialog.ShowDialog() == true)
 			{
-				BlacklistService.TryAddBlacklistedUserAsync(stringValueDialog.Text);
+				BlacklistService.TryAddBlacklistedUserAsync(stringValueDialogViewModel.Text);
+			}
+		}
+
+		[RelayCommand]
+		async Task RemoveFromBlacklist()
+		{
+			var removeFromBlackListViewModel = new RemoveBlacklistedUsersViewModel(await BlacklistService.GetBlacklistedUsersAsync());
+			var removeFromBlackListDialog = new RemoveBlacklistedUsersView(removeFromBlackListViewModel)
+			{
+				Owner = _view
+			};
+
+			if (removeFromBlackListDialog.ShowDialog() == true)
+			{
+				var names = removeFromBlackListViewModel.Users.Where((user) => !user.IsBlacklisted).Select((user) => user.Name);
+				var removedUserCount = await BlacklistService.RemoveBlackListUsersAsync(names);
+				MessageBox.Show($"Successfully removed {removedUserCount} users from blacklist.", string.Empty, MessageBoxButton.OK, MessageBoxImage.Information);
 			}
 		}
 
