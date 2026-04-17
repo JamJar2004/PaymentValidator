@@ -91,7 +91,13 @@ namespace PaymentValidator.ViewModels
 		[RelayCommand]
 		async Task RemoveFromBlacklist()
 		{
-			var removeFromBlackListViewModel = new RemoveBlacklistedUsersViewModel(await BlacklistService.GetBlacklistedUsersAsync());
+			var blacklistedUsers = new List<string>(); 
+			await foreach (var user in BlacklistService.EnumerateBlacklistedUsersAsync())
+			{
+				blacklistedUsers.Add(user);
+			}
+
+			var removeFromBlackListViewModel = new RemoveBlacklistedUsersViewModel(blacklistedUsers);
 			var removeFromBlackListDialog = new RemoveBlacklistedUsersView(removeFromBlackListViewModel)
 			{
 				Owner = _view
@@ -108,7 +114,13 @@ namespace PaymentValidator.ViewModels
 		[RelayCommand]
 		async Task ViewRecentPayments()
 		{
-			var dialog = new RecentPaymentsView(await PaymentService.GetRecentPaymentsAsync())
+			var payments = new List<PaymentInfo>();
+			await foreach (var payment in PaymentService.EnumeratePaymentHistoryAsync())
+			{
+				payments.Add(payment);
+			}
+
+			var dialog = new RecentPaymentsView(payments)
 			{
 				Owner = _view
 			};

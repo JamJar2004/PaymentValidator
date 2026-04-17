@@ -6,7 +6,7 @@
 
         Task<bool> IsUserBlackListedAsync(string name);
 
-        Task<IEnumerable<string>> GetBlacklistedUsersAsync();
+        IAsyncEnumerable<string> EnumerateBlacklistedUsersAsync();
 
         Task<int> RemoveBlackListUsersAsync(IEnumerable<string> names);
     }

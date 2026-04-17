@@ -3,35 +3,31 @@ using System.Text.Json;
 
 namespace PaymentValidator.API.Services.Payment
 {
-	public sealed class PaymentCollectionPayload
-	{
-		public required List<PaymentInfo> Payments { get; init; }
-	}
-
 	public sealed class JsonPaymentService(IBlacklistService blackListService, ILogger<string> logger, FileInfo file) : PaymentServiceBase(blackListService, logger)
     {
 		private readonly FileInfo _file = file;
 
-		private async Task<PaymentCollectionPayload> DeserializePayload()
+		private async Task<List<PaymentInfo>> DeserializePayload()
 		{
-			var payload = new PaymentCollectionPayload() { Payments = [] };
+			var payload = new List<PaymentInfo>();
 			if (_file.Exists)
 			{
 				await using var stream = _file.OpenRead();
-				payload = await JsonSerializer.DeserializeAsync<PaymentCollectionPayload>(stream) ?? payload;
+				payload = await JsonSerializer.DeserializeAsync<List<PaymentInfo>>(stream) ?? payload;
 			}
 			return payload;
 		}
 
-		protected async override Task<bool> TrySendMoneyAsyncCore(string senderName, decimal amountInEuros, string ibanNumber)
+		protected async override Task<bool> TrySendMoneyAsyncCore(string senderName, decimal amountInEuros, string ibanNumber, DateTime time)
 		{
 			var paymentCollection = await DeserializePayload();
 
-			paymentCollection.Payments.Add(new PaymentInfo()
+			paymentCollection.Add(new PaymentInfo()
 			{
 				SenderName = senderName,
 				AmountInEuros = amountInEuros,
-				IBANNumber = ibanNumber
+				IBANNumber = ibanNumber,
+				PaymentTime = time
 			});
 
 			await using var stream = _file.Open(FileMode.Create);
@@ -39,10 +35,19 @@ namespace PaymentValidator.API.Services.Payment
 			return true;
 		}
 
-		public async override Task<IEnumerable<PaymentInfo>> GetRecentPaymentsAsync()
+		public async override IAsyncEnumerable<PaymentInfo> EnumeratePaymentHistoryAsync()
 		{
-			var payload = await DeserializePayload();
-			return payload.Payments;
+			if (_file.Exists)
+			{
+				await using var stream = _file.OpenRead();
+				await foreach (var payment in JsonSerializer.DeserializeAsyncEnumerable<PaymentInfo>(stream))
+				{
+					if (payment is not null)
+					{
+						yield return payment;
+					}
+				}
+			}
 		}
 	}
 }

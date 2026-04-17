@@ -3,24 +3,19 @@ using System.Text.Json;
 
 namespace PaymentValidator.API.Services.Blacklist
 {
-	public sealed class BlackListPayload
-	{
-		public required HashSet<string> BlacklistedUsers { get; init; }
-	}
-
     public sealed class JsonBlackListService(FileInfo file, ILogger<string> logger) : IBlacklistService
     {
 		private readonly FileInfo _file = file;
 
 		private readonly ILogger<string> _logger = logger;
 
-		private async Task<BlackListPayload> DeserializePayload()
+		private async Task<HashSet<string>> DeserializePayload()
 		{
-			var payload = new BlackListPayload() { BlacklistedUsers = [] };
+			var payload = new HashSet<string>();
 			if (_file.Exists)
 			{
 				await using var stream = _file.OpenRead();
-				payload = await JsonSerializer.DeserializeAsync<BlackListPayload>(stream) ?? new BlackListPayload() { BlacklistedUsers = [] };
+				payload = await JsonSerializer.DeserializeAsync<HashSet<string>>(stream) ?? payload;
 			}
 			return payload;
 		}
@@ -28,7 +23,7 @@ namespace PaymentValidator.API.Services.Blacklist
 		public async Task<bool> TryAddBlacklistedUserAsync(string senderName)
 		{
 			var payload = await DeserializePayload();
-			if (payload.BlacklistedUsers.Add(senderName))
+			if (payload.Add(senderName))
 			{
 				await using var stream = _file.Open(FileMode.Create);
 				await JsonSerializer.SerializeAsync(stream, payload);
@@ -46,13 +41,22 @@ namespace PaymentValidator.API.Services.Blacklist
 			}
 
 			var payload = await DeserializePayload();
-			return payload.BlacklistedUsers.Contains(senderName);
+			return payload.Contains(senderName);
 		}
 
-		public async Task<IEnumerable<string>> GetBlacklistedUsersAsync()
+		public async IAsyncEnumerable<string> EnumerateBlacklistedUsersAsync()
 		{
-			var payload = await DeserializePayload();
-			return payload.BlacklistedUsers;
+			if (_file.Exists)
+			{
+				await using var stream = _file.OpenRead();
+				await foreach (var name in JsonSerializer.DeserializeAsyncEnumerable<string>(stream))
+				{
+					if (name is not null)
+					{
+						yield return name;
+					}
+				}
+			}
 		}
 
 		public async Task<int> RemoveBlackListUsersAsync(IEnumerable<string> names)
@@ -63,7 +67,7 @@ namespace PaymentValidator.API.Services.Blacklist
 			
 			foreach (var name in names)
 			{
-				if (payload.BlacklistedUsers.Remove(name))
+				if (payload.Remove(name))
 				{
 					++removeCount;
 				}

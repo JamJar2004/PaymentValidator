@@ -9,6 +9,8 @@ namespace PaymentValidator.API
 		public required decimal AmountInEuros { get; init; }
 
 		public required string IBANNumber { get; init; }
+
+		public required DateTime PaymentTime { get; init; }
 	}
 
 	public abstract class PaymentServiceBase(IBlacklistService blackListService, ILogger<string> logger)
@@ -44,11 +46,11 @@ namespace PaymentValidator.API
                 return false;
             }
 
-            return await TrySendMoneyAsyncCore(senderName, amountInEuros, ibanNumber);
+            return await TrySendMoneyAsyncCore(senderName, amountInEuros, ibanNumber, DateTime.Now);
         }
 
-        protected abstract Task<bool> TrySendMoneyAsyncCore(string senderName, decimal amountInEuros, string ibanNumber);
+        protected abstract Task<bool> TrySendMoneyAsyncCore(string senderName, decimal amountInEuros, string ibanNumber, DateTime dateTime);
 
-		public abstract Task<IEnumerable<PaymentInfo>> GetRecentPaymentsAsync();
+		public abstract IAsyncEnumerable<PaymentInfo> EnumeratePaymentHistoryAsync();
     }
 }
