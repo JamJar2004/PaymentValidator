@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace PaymentValidator.Services
+namespace PaymentValidator.API
 {
     public sealed class ValidationService
     {

@@ -1,4 +1,4 @@
-﻿using PaymentValidator.Interfaces;
+﻿using PaymentValidator.API.Interfaces;
 using System.Windows;
 using System.Windows.Threading;
 

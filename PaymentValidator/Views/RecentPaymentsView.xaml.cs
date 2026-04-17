@@ -1,4 +1,4 @@
-﻿using PaymentValidator.Services.Payment;
+﻿using PaymentValidator.API;
 using PaymentValidator.ViewModels;
 using System.Windows;
 

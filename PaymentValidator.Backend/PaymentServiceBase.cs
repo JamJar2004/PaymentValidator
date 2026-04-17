@@ -1,10 +1,22 @@
-﻿using PaymentValidator.Interfaces;
-using PaymentValidator.Services.Payment;
-using System.Text.Json;
+﻿using PaymentValidator.API.Interfaces;
 
-namespace PaymentValidator.Services
+namespace PaymentValidator.API
 {
-    public abstract class PaymentServiceBase(IBlacklistService blackListService, ILogger<string> logger)
+	public sealed class PaymentPayload
+	{
+		public required string SenderName { get; init; }
+
+		public required decimal AmountInEuros { get; init; }
+
+		public required string IBANNumber { get; init; }
+	}
+
+	public sealed class PaymentCollectionPayload
+	{
+		public required List<PaymentPayload> Payments { get; init; }
+	}
+
+	public abstract class PaymentServiceBase(IBlacklistService blackListService, ILogger<string> logger)
     {
         private readonly IBlacklistService _blackListService = blackListService;
 		private readonly ValidationService _validationService = new();

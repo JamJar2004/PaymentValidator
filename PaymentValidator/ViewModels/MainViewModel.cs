@@ -1,14 +1,13 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using PaymentValidator.Interfaces;
+using PaymentValidator.API;
+using PaymentValidator.API.Interfaces;
 using PaymentValidator.Loggers;
-using PaymentValidator.Services;
 using PaymentValidator.Services.Blacklist;
 using PaymentValidator.Services.Payment;
 using PaymentValidator.Views;
 using System.IO;
 using System.Windows;
-using System.Windows.Threading;
 
 namespace PaymentValidator.ViewModels
 {

@@ -1,4 +1,4 @@
-﻿using PaymentValidator.Interfaces;
+﻿using PaymentValidator.API.Interfaces;
 using System.IO;
 using System.Text.Json;
 

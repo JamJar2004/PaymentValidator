@@ -1,4 +1,4 @@
-﻿namespace PaymentValidator.Interfaces
+﻿namespace PaymentValidator.API.Interfaces
 {
     public interface IBlacklistService
     {
