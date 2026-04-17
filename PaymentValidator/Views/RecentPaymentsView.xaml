@@ -16,7 +16,7 @@
 			<RowDefinition Height="auto"/>
 		</Grid.RowDefinitions>
 		
-		<ListView Grid.Row="0" ItemsSource="{Binding Payments.Payments}">
+		<ListView Grid.Row="0" ItemsSource="{Binding Payments}">
 			<ListView.View>
 				<GridView>
 					<GridViewColumn Header="Sender Name" DisplayMemberBinding="{Binding SenderName}"/>

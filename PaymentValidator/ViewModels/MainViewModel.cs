@@ -2,9 +2,9 @@
 using CommunityToolkit.Mvvm.Input;
 using PaymentValidator.API;
 using PaymentValidator.API.Interfaces;
+using PaymentValidator.API.Services.Blacklist;
+using PaymentValidator.API.Services.Payment;
 using PaymentValidator.Loggers;
-using PaymentValidator.Services.Blacklist;
-using PaymentValidator.Services.Payment;
 using PaymentValidator.Views;
 using System.IO;
 using System.Windows;

@@ -6,14 +6,14 @@ namespace PaymentValidator.Views
 {
     public partial class RecentPaymentsView : Window
     {
-        public RecentPaymentsView(PaymentCollectionPayload paymentCollection)
+        public RecentPaymentsView(IEnumerable<PaymentInfo> payments)
         {
             InitializeComponent();
 
             DataContext = new RecentPaymentsViewModel()
             {
-                Payments = paymentCollection
-            };
+                Payments = new(payments)
+			};
         }
     }
 }

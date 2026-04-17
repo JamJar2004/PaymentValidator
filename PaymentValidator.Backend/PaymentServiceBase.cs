@@ -2,18 +2,13 @@
 
 namespace PaymentValidator.API
 {
-	public sealed class PaymentPayload
+	public sealed class PaymentInfo
 	{
 		public required string SenderName { get; init; }
 
 		public required decimal AmountInEuros { get; init; }
 
 		public required string IBANNumber { get; init; }
-	}
-
-	public sealed class PaymentCollectionPayload
-	{
-		public required List<PaymentPayload> Payments { get; init; }
 	}
 
 	public abstract class PaymentServiceBase(IBlacklistService blackListService, ILogger<string> logger)
@@ -54,6 +49,6 @@ namespace PaymentValidator.API
 
         protected abstract Task<bool> TrySendMoneyAsyncCore(string senderName, decimal amountInEuros, string ibanNumber);
 
-		public abstract Task<PaymentCollectionPayload> GetRecentPaymentsAsync();
+		public abstract Task<IEnumerable<PaymentInfo>> GetRecentPaymentsAsync();
     }
 }

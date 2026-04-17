@@ -1,8 +1,7 @@
 ﻿using PaymentValidator.API.Interfaces;
-using System.IO;
 using System.Text.Json;
 
-namespace PaymentValidator.Services.Blacklist
+namespace PaymentValidator.API.Services.Blacklist
 {
 	public sealed class BlackListPayload
 	{
