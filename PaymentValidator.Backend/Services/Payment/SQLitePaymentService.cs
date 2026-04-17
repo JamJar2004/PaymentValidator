@@ -9,13 +9,13 @@ namespace PaymentValidator.API.Services.Payment
 
 		private readonly SQLiteConnection _connection = connection;
 
-		private readonly SQLiteCommand _ensureTableCommand = new SQLiteCommand($"CREATE TABLE IF NOT EXISTS {TABLE_NAME} (senderName TEXT, amountInEuros DECIMAL(32, 16), ibanNumber TEXT, paymentTime DATETIME)", connection);
+		private readonly SQLiteCommand _ensureTableCommand = new SQLiteCommand($"CREATE TABLE IF NOT EXISTS {TABLE_NAME} (senderName TEXT, amountInEuros DECIMAL(32, 16), ibanNumber TEXT, paymentTime DATETIME);", connection);
 
 		protected async override Task<bool> TrySendMoneyAsyncCore(string senderName, decimal amountInEuros, string ibanNumber, DateTime time)
 		{
 			await _ensureTableCommand.ExecuteNonQueryAsync();
 
-			await using var insertCommand = new SQLiteCommand($"INSERT INTO {TABLE_NAME} (senderName, amountInEuros, ibanNumber, paymentTime) VALUES (@senderName, @amountInEuros, @ibanNumber, @paymentTime)", _connection);
+			await using var insertCommand = new SQLiteCommand($"INSERT INTO {TABLE_NAME} (senderName, amountInEuros, ibanNumber, paymentTime) VALUES (@senderName, @amountInEuros, @ibanNumber, @paymentTime);", _connection);
 			insertCommand.Parameters.AddWithValue("@senderName", senderName);
 			insertCommand.Parameters.AddWithValue("@amountInEuros", amountInEuros);
 			insertCommand.Parameters.AddWithValue("@ibanNumber", ibanNumber);
@@ -28,7 +28,7 @@ namespace PaymentValidator.API.Services.Payment
 		{
 			await _ensureTableCommand.ExecuteNonQueryAsync();
 
-			var selectCommand = new SQLiteCommand($"SELECT name FROM {TABLE_NAME}", _connection);
+			var selectCommand = new SQLiteCommand($"SELECT * FROM {TABLE_NAME};", _connection);
 
 			var reader = await selectCommand.ExecuteReaderAsync();
 
