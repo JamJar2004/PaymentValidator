@@ -2,8 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using PaymentValidator.API;
 using PaymentValidator.API.Interfaces;
-using PaymentValidator.API.Services.Blacklist;
-using PaymentValidator.API.Services.Payment;
+using PaymentValidator.API.Services.Creation;
 using PaymentValidator.Loggers;
 using PaymentValidator.Views;
 using System.IO;
@@ -11,26 +10,29 @@ using System.Windows;
 
 namespace PaymentValidator.ViewModels
 {
-	public partial class MainViewModel : ObservableObject
+	public partial class MainViewModel : ObservableObject, IDisposable, IAsyncDisposable
 	{
 		private readonly MainWindow _view;
+
+		private readonly ICreationService _creationService;
 
 		public MainViewModel(MainWindow view)
 		{
 			_view = view;
 
+			var logger = new MessageBoxLogger(view.Dispatcher);
+
+			_creationService = new JsonCreationService(new FileInfo("C:\\BlackList.json"), new FileInfo("C:\\Payments.json"), logger);
+
 			SenderName = string.Empty;
 			PaymentAmount = 0.0M;
 			IBAN = string.Empty;
-
-			var logger = new MessageBoxLogger(view.Dispatcher);
-			BlacklistService = new JsonBlackListService(new FileInfo("C:\\BlackList.json"), logger);
-			PaymentService = new JsonPaymentService(BlacklistService, logger, new FileInfo("C:\\Payments.json"));
 		}
 
-		public IBlacklistService BlacklistService { get; }
-
-		public PaymentServiceBase PaymentService { get; }
+		~MainViewModel()
+		{
+			Dispose();
+		}
 
 		[ObservableProperty]
 		public partial string SenderName { get; set; }
@@ -65,14 +67,16 @@ namespace PaymentValidator.ViewModels
 		[RelayCommand(CanExecute = nameof(CanSendPayment))]
 		async Task SendPaymentAsync()
 		{
-			if (await PaymentService.TrySendMoneyAsync(SenderName, PaymentAmount, IBAN))
+			await using var paymentService = await _creationService.CreatePaymentServiceAsync();
+			await using var blackListService = await _creationService.CreateBlackListServiceAsync();
+			if (await paymentService.TrySendMoneyAsync(blackListService, SenderName, PaymentAmount, IBAN))
 			{
 				MessageBox.Show($"Successfully sent {PaymentAmount} euros, from '{SenderName}', to IBAN number {IBAN}.", "Payment Validator", MessageBoxButton.OK, MessageBoxImage.Information);
 			}
 		}
 
 		[RelayCommand]
-		void BlacklistUser()
+		async Task BlacklistUser()
 		{
 			var stringValueDialogViewModel = new StringValueDialogViewModel();
 
@@ -84,15 +88,18 @@ namespace PaymentValidator.ViewModels
 
 			if (stringValueDialog.ShowDialog() == true)
 			{
-				BlacklistService.TryAddBlacklistedUserAsync(stringValueDialogViewModel.Text);
+				await using var blacklistService = await _creationService.CreateBlackListServiceAsync();
+				await blacklistService.TryAddBlacklistedUserAsync(stringValueDialogViewModel.Text);
 			}
 		}
 
 		[RelayCommand]
 		async Task RemoveFromBlacklist()
 		{
+			await using var blacklistService = await _creationService.CreateBlackListServiceAsync();
+
 			var blacklistedUsers = new List<string>(); 
-			await foreach (var user in BlacklistService.EnumerateBlacklistedUsersAsync())
+			await foreach (var user in blacklistService.EnumerateBlacklistedUsersAsync())
 			{
 				blacklistedUsers.Add(user);
 			}
@@ -106,7 +113,7 @@ namespace PaymentValidator.ViewModels
 			if (removeFromBlackListDialog.ShowDialog() == true)
 			{
 				var names = removeFromBlackListViewModel.Users.Where((user) => !user.IsBlacklisted).Select((user) => user.Name);
-				var removedUserCount = await BlacklistService.RemoveBlackListUsersAsync(names);
+				var removedUserCount = await blacklistService.RemoveBlackListUsersAsync(names);
 				MessageBox.Show($"Successfully removed {removedUserCount} users from blacklist.", string.Empty, MessageBoxButton.OK, MessageBoxImage.Information);
 			}
 		}
@@ -114,8 +121,10 @@ namespace PaymentValidator.ViewModels
 		[RelayCommand]
 		async Task ViewRecentPayments()
 		{
+			await using var paymentService = await _creationService.CreatePaymentServiceAsync();
+
 			var payments = new List<PaymentInfo>();
-			await foreach (var payment in PaymentService.EnumeratePaymentHistoryAsync())
+			await foreach (var payment in paymentService.EnumeratePaymentHistoryAsync())
 			{
 				payments.Add(payment);
 			}
@@ -125,6 +134,18 @@ namespace PaymentValidator.ViewModels
 				Owner = _view
 			};
 			dialog.ShowDialog();
+		}
+
+		public void Dispose()
+		{
+			_creationService.Dispose();
+			GC.SuppressFinalize(this);
+		}
+
+		public async ValueTask DisposeAsync()
+		{
+			await _creationService.DisposeAsync().ConfigureAwait(false);
+			GC.SuppressFinalize(this);
 		}
 	}
 }

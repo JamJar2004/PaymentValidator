@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace PaymentValidator.API.Services.Payment
 {
-	public sealed class JsonPaymentService(IBlacklistService blackListService, ILogger<string> logger, FileInfo file) : PaymentServiceBase(blackListService, logger)
+	public sealed class JsonPaymentService(ILogger<string> logger, FileInfo file) : PaymentServiceBase(logger)
     {
 		private readonly FileInfo _file = file;
 

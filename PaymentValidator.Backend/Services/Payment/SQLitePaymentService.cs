@@ -1,11 +1,9 @@
 ﻿using PaymentValidator.API.Interfaces;
 using System.Data.SQLite;
-using System.Text.Json;
-using System.Xml.Linq;
 
 namespace PaymentValidator.API.Services.Payment
 {
-	public sealed class SQLitePaymentService(SQLiteConnection connection, IBlacklistService blackListService, ILogger<string> logger) : PaymentServiceBase(blackListService, logger)
+	public sealed class SQLitePaymentService(ILogger<string> logger, SQLiteConnection connection) : PaymentServiceBase(logger)
 	{
 		private const string TABLE_NAME = "paymentHistory";
 

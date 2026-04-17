@@ -14,5 +14,12 @@ namespace PaymentValidator.Views
 
 			DataContext = new MainViewModel(this);
 		}
+
+		protected override void OnClosed(EventArgs e)
+		{
+			base.OnClosed(e);
+			var viewModel = (MainViewModel)DataContext;
+			viewModel.Dispose();
+		}
     }
 }

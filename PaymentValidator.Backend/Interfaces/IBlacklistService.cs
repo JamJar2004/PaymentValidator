@@ -1,6 +1,6 @@
 ﻿namespace PaymentValidator.API.Interfaces
 {
-    public interface IBlacklistService
+    public interface IBlacklistService : IDisposable, IAsyncDisposable
     {
         Task<bool> TryAddBlacklistedUserAsync(string name);
 

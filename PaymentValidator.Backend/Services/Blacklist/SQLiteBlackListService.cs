@@ -3,7 +3,7 @@ using System.Data.SQLite;
 
 namespace PaymentValidator.API.Services.Blacklist
 {
-	public sealed class SQLiteBlackListService(SQLiteConnection connection) : IBlacklistService, IDisposable, IAsyncDisposable
+	public sealed class SQLiteBlackListService(SQLiteConnection connection) : IBlacklistService
 	{
 		private const string TABLE_NAME = "blacklisted";
 

@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace PaymentValidator.API.Services.Blacklist
 {
-    public sealed class JsonBlackListService(FileInfo file, ILogger<string> logger) : IBlacklistService
+    public sealed class JsonBlackListService(ILogger<string> logger, FileInfo file) : IBlacklistService
     {
 		private readonly FileInfo _file = file;
 
@@ -78,6 +78,16 @@ namespace PaymentValidator.API.Services.Blacklist
 			await using var stream = _file.Open(FileMode.Create);
 			await JsonSerializer.SerializeAsync(stream, payload);
 			return removeCount;
+		}
+
+		public void Dispose()
+		{
+			GC.SuppressFinalize(this);
+		}
+
+		public async ValueTask DisposeAsync()
+		{
+			GC.SuppressFinalize(this);
 		}
 	}
 }
