@@ -12,6 +12,7 @@ namespace PaymentValidator.API.Services.Blacklist
 		private async Task<HashSet<string>> DeserializePayload()
 		{
 			var payload = new HashSet<string>();
+			_file.Refresh();
 			if (_file.Exists)
 			{
 				await using var stream = _file.OpenRead();
@@ -35,6 +36,7 @@ namespace PaymentValidator.API.Services.Blacklist
 
 		public async Task<bool> IsUserBlackListedAsync(string senderName)
 		{
+			_file.Refresh();
 			if (!_file.Exists)
 			{
 				return false;
@@ -46,6 +48,7 @@ namespace PaymentValidator.API.Services.Blacklist
 
 		public async IAsyncEnumerable<string> EnumerateBlacklistedUsersAsync()
 		{
+			_file.Refresh();
 			if (_file.Exists)
 			{
 				await using var stream = _file.OpenRead();

@@ -22,6 +22,7 @@
 					<GridViewColumn Header="Sender Name" DisplayMemberBinding="{Binding SenderName}"/>
 					<GridViewColumn Header="Amount in euros" DisplayMemberBinding="{Binding AmountInEuros}"/>
 					<GridViewColumn Header="Target IBAN number" DisplayMemberBinding="{Binding IBANNumber}"/>
+					<GridViewColumn Header="Payment Time" DisplayMemberBinding="{Binding PaymentTime}"/>
 				</GridView>
 			</ListView.View>
 		</ListView>

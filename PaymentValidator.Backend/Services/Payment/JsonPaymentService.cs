@@ -10,6 +10,7 @@ namespace PaymentValidator.API.Services.Payment
 		private async Task<List<PaymentInfo>> DeserializePayload()
 		{
 			var payload = new List<PaymentInfo>();
+			_file.Refresh();
 			if (_file.Exists)
 			{
 				await using var stream = _file.OpenRead();
@@ -22,7 +23,7 @@ namespace PaymentValidator.API.Services.Payment
 		{
 			var paymentCollection = await DeserializePayload();
 
-			paymentCollection.Add(new PaymentInfo()
+			paymentCollection.Insert(0, new PaymentInfo()
 			{
 				SenderName = senderName,
 				AmountInEuros = amountInEuros,
@@ -37,6 +38,7 @@ namespace PaymentValidator.API.Services.Payment
 
 		public async override IAsyncEnumerable<PaymentInfo> EnumeratePaymentHistoryAsync()
 		{
+			_file.Refresh();
 			if (_file.Exists)
 			{
 				await using var stream = _file.OpenRead();
