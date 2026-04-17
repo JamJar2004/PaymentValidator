@@ -2,6 +2,12 @@
 
 namespace PaymentValidator.API
 {
+	public enum PaymentResult
+	{
+		Accepted,
+		Rejected,
+	}
+
 	public sealed class PaymentInfo
 	{
 		public required string SenderName { get; init; }
@@ -11,6 +17,8 @@ namespace PaymentValidator.API
 		public required string IBANNumber { get; init; }
 
 		public required DateTime PaymentTime { get; init; }
+
+		public required PaymentResult Result { get; init; }
 	}
 
 	public abstract class PaymentServiceBase(ILogger<string> logger) : IDisposable, IAsyncDisposable
@@ -39,16 +47,17 @@ namespace PaymentValidator.API
 				return false;
 			}
 
+			var paymentResult = PaymentResult.Accepted;
 			if (await blacklist.IsUserBlackListedAsync(senderName))
 			{
 				await Logger.LogAsync($"User of name '{senderName}' is blacklisted. The payment has been rejected.");
-				return false;
+				paymentResult = PaymentResult.Rejected;
 			}
 
-			return await TrySendMoneyAsyncCore(senderName, amountInEuros, ibanNumber, DateTime.Now);
+			return await TrySendMoneyAsyncCore(senderName, amountInEuros, ibanNumber, DateTime.Now, paymentResult) && paymentResult == PaymentResult.Accepted;
 		}
 
-		protected abstract Task<bool> TrySendMoneyAsyncCore(string senderName, decimal amountInEuros, string ibanNumber, DateTime dateTime);
+		protected abstract Task<bool> TrySendMoneyAsyncCore(string senderName, decimal amountInEuros, string ibanNumber, DateTime dateTime, PaymentResult paymentResult);
 
 		public abstract IAsyncEnumerable<PaymentInfo> EnumeratePaymentHistoryAsync();
 

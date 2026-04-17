@@ -9,17 +9,18 @@ namespace PaymentValidator.API.Services.Payment
 
 		private readonly SQLiteConnection _connection = connection;
 
-		private readonly SQLiteCommand _ensureTableCommand = new SQLiteCommand($"CREATE TABLE IF NOT EXISTS {TABLE_NAME} (senderName TEXT, amountInEuros DECIMAL(32, 16), ibanNumber TEXT, paymentTime DATETIME);", connection);
+		private readonly SQLiteCommand _ensureTableCommand = new SQLiteCommand($"CREATE TABLE IF NOT EXISTS {TABLE_NAME} (senderName TEXT, amountInEuros DECIMAL(32, 16), ibanNumber TEXT, paymentTime DATETIME, paymentAccepted BOOLEAN);", connection);
 
-		protected async override Task<bool> TrySendMoneyAsyncCore(string senderName, decimal amountInEuros, string ibanNumber, DateTime time)
+		protected async override Task<bool> TrySendMoneyAsyncCore(string senderName, decimal amountInEuros, string ibanNumber, DateTime time, PaymentResult paymentResult)
 		{
 			await _ensureTableCommand.ExecuteNonQueryAsync();
 
-			await using var insertCommand = new SQLiteCommand($"INSERT INTO {TABLE_NAME} (senderName, amountInEuros, ibanNumber, paymentTime) VALUES (@senderName, @amountInEuros, @ibanNumber, @paymentTime);", _connection);
+			await using var insertCommand = new SQLiteCommand($"INSERT INTO {TABLE_NAME} (senderName, amountInEuros, ibanNumber, paymentTime, paymentAccepted) VALUES (@senderName, @amountInEuros, @ibanNumber, @paymentTime, @paymentAccepted);", _connection);
 			insertCommand.Parameters.AddWithValue("@senderName", senderName);
 			insertCommand.Parameters.AddWithValue("@amountInEuros", amountInEuros);
 			insertCommand.Parameters.AddWithValue("@ibanNumber", ibanNumber);
 			insertCommand.Parameters.AddWithValue("@paymentTime", time);
+			insertCommand.Parameters.AddWithValue("@paymentAccepted", paymentResult == PaymentResult.Accepted);
 
 			return await insertCommand.ExecuteNonQueryAsync() != 0;
 		}
@@ -40,6 +41,7 @@ namespace PaymentValidator.API.Services.Payment
 					AmountInEuros = reader.GetDecimal(1),
 					IBANNumber = reader.GetString(2),
 					PaymentTime = reader.GetDateTime(3),
+					Result = reader.GetBoolean(4) ? PaymentResult.Accepted : PaymentResult.Rejected
 				};
 			}
 		}

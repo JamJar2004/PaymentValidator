@@ -22,7 +22,7 @@ namespace PaymentValidator.ViewModels
 
 			var logger = new MessageBoxLogger(view.Dispatcher);
 
-			_creationService = new SQLiteCreationService(new FileInfo("C:\\PaymentValidatorDB.json"), logger);
+			_creationService = new SQLiteCreationService(new FileInfo("C:\\PaymentValidatorDB.db"), logger);
 
 			SenderName = string.Empty;
 			PaymentAmount = 0.0M;

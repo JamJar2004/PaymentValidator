@@ -6,13 +6,16 @@ namespace PaymentValidator.Views
 {
     public partial class RecentPaymentsView : Window
     {
-        public RecentPaymentsView(IEnumerable<PaymentInfo> payments)
+        public RecentPaymentsView(IReadOnlyCollection<PaymentInfo> payments)
         {
             InitializeComponent();
 
             DataContext = new RecentPaymentsViewModel()
             {
-                Payments = new(payments)
+                Payments = new(payments),
+                TotalAttempts = payments.Count,
+                TotalAccepted = payments.Count((payment) => payment.Result == PaymentResult.Accepted),
+				TotalRejected = payments.Count((payment) => payment.Result == PaymentResult.Rejected)
 			};
         }
     }

@@ -23,9 +23,19 @@
 					<GridViewColumn Header="Amount in euros" DisplayMemberBinding="{Binding AmountInEuros}"/>
 					<GridViewColumn Header="Target IBAN number" DisplayMemberBinding="{Binding IBANNumber}"/>
 					<GridViewColumn Header="Payment Time" DisplayMemberBinding="{Binding PaymentTime}"/>
+					<GridViewColumn Header="Status" DisplayMemberBinding="{Binding Result}"/>
 				</GridView>
 			</ListView.View>
 		</ListView>
-		<Button Grid.Row="1" Content="OK" Height="30" Margin="5"/>
+		<StackPanel Margin="5" Grid.Row="1" Orientation="Horizontal">
+			<TextBlock Text="Total accepted: "/>
+			<TextBlock Text="{Binding TotalAccepted}"/>
+			<Separator Margin="5"/>
+			<TextBlock Text="Total rejected: "/>
+			<TextBlock Text="{Binding TotalRejected}"/>
+			<Separator Margin="5"/>
+			<TextBlock Text="Total attempts: "/>
+			<TextBlock Text="{Binding TotalAttempts}"/>
+		</StackPanel>
 	</Grid>
 </Window>

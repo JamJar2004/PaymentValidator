@@ -22,7 +22,7 @@
 			</MenuItem>
 
 			<MenuItem Header="View">
-				<MenuItem Header="Recent payments" Command="{Binding ViewRecentPaymentsCommand}"/>
+				<MenuItem Header="Payment Summary" Command="{Binding ViewRecentPaymentsCommand}"/>
 			</MenuItem>
 		</Menu>
 		

@@ -19,7 +19,7 @@ namespace PaymentValidator.API.Services.Payment
 			return payload;
 		}
 
-		protected async override Task<bool> TrySendMoneyAsyncCore(string senderName, decimal amountInEuros, string ibanNumber, DateTime time)
+		protected async override Task<bool> TrySendMoneyAsyncCore(string senderName, decimal amountInEuros, string ibanNumber, DateTime time, PaymentResult paymentResult)
 		{
 			var paymentCollection = await DeserializePayload();
 
@@ -28,7 +28,8 @@ namespace PaymentValidator.API.Services.Payment
 				SenderName = senderName,
 				AmountInEuros = amountInEuros,
 				IBANNumber = ibanNumber,
-				PaymentTime = time
+				PaymentTime = time,
+				Result = paymentResult,
 			});
 
 			await using var stream = _file.Open(FileMode.Create);
